@@ -20,6 +20,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Menu.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Menu.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{90552856-3515-443B-82BC-72EA6E575B5F}</ProjectGuid>

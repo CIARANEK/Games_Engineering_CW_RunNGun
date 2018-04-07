@@ -2,12 +2,14 @@
 //SET09121
 //Run N Gun
 //Ciaran McMahon
+//main.cpp
 
 #include<iostream>
 #include<SFML\Graphics.hpp>
 #include<SFML\Window.hpp>
 #include"SFML\System.hpp"
 #include<cstdlib>
+#include "Menu.h"
 
 #include<vector>
 
@@ -19,6 +21,9 @@ int main()
 
 	sf::RenderWindow window(VideoMode(640, 480), "Run N Gun");
 	window.setFramerateLimit(60);
+
+	sf::RenderWindow window(sf::VideoMode(600, 600), "Run N Gun Main Menu");
+	Menu menu(window.getSize().x, window.getSize().y);
 
 	//Shapes- Will become sprites
 	CircleShape bullet;
@@ -48,9 +53,57 @@ int main()
 		Event event;
 		while (window.pollEvent(event))
 		{
-			if (event.type == Event::Closed)
-				window.close();
+			//Main Menu
+			sf::Event event;
+
+			while (window.pollEvent(event))
+			{
+				switch (event.type)
+				{
+				case sf::Event::KeyReleased:
+					switch (event.key.code)
+					{
+					case sf::Keyboard::Up:
+						menu.MoveUp();
+						break;
+
+					case sf::Keyboard::Down:
+						menu.MoveDown();
+						break;
+
+					case sf::Keyboard::Return:
+						switch (menu.GetPressedItem())
+						{
+						case 0:
+							std::cout << "Play button has been pressed" << std::endl;
+							break;
+						case 1:
+							std::cout << "Option button has been pressed" << std::endl;
+							break;
+						case 2:
+							window.close();
+							break;
+						}
+
+						break;
+					}
+
+					break;
+				case sf::Event::Closed:
+					window.close();
+
+					break;
+
+				}
+
+			}
+			window.clear();
+
+			menu.draw(window);
+
+			window.display();
 		}
+
 
 		//Player
 		playerCenter = Vector2f(player.getPosition().x + player.getRadius(), player.getPosition().y + player.getRadius());
@@ -62,7 +115,7 @@ int main()
 			shootTimer++;
 
 		//Shoot
-		if (Keyboard::isKeyPressed(Keyboard::Space) && shootTimer >= 5) 
+		if (Keyboard::isKeyPressed(Keyboard::Space) && shootTimer >= 5)
 		{
 			bullet.setPosition(playerCenter);
 			bullets.push_back(CircleShape(bullet));
@@ -78,60 +131,60 @@ int main()
 				bullets.erase(bullets.begin() + i);
 
 
-		//Enemies
-		if (enemySpawnTimer < 20)
-			enemySpawnTimer++;
+			//Enemies
+			if (enemySpawnTimer < 20)
+				enemySpawnTimer++;
 
-		if (enemySpawnTimer >= 20)
-		{
-			enemy.setPosition((rand() % int(window.getSize().x - enemy.getSize().x)), 0.f);
-			enemies.push_back(RectangleShape(enemy));
-
-			enemySpawnTimer = 0;
-		}
-
-		for (size_t i = 0; i < enemies.size(); i++)
-		{
-			enemies[i].move(0.f, 5.f);
-
-			if (enemies[i].getPosition().y > window.getSize().y)
-				enemies.erase(enemies.begin() + i);
-		}
-
-		//Collision
-		if (!enemies.empty() && !bullets.empty())
-		{
-			for (size_t i = 0; i < bullets.size(); i++)
+			if (enemySpawnTimer >= 20)
 			{
-				for (size_t k = 0; k < enemies.size(); k++)
+				enemy.setPosition((rand() % int(window.getSize().x - enemy.getSize().x)), 0.f);
+				enemies.push_back(RectangleShape(enemy));
+
+				enemySpawnTimer = 0;
+			}
+
+			for (size_t i = 0; i < enemies.size(); i++)
+			{
+				enemies[i].move(0.f, 5.f);
+
+				if (enemies[i].getPosition().y > window.getSize().y)
+					enemies.erase(enemies.begin() + i);
+			}
+
+			//Collision
+			if (!enemies.empty() && !bullets.empty())
+			{
+				for (size_t i = 0; i < bullets.size(); i++)
 				{
-					if (bullets[i].getGlobalBounds().intersects(enemies[k].getGlobalBounds()))
+					for (size_t k = 0; k < enemies.size(); k++)
 					{
-						bullets.erase(bullets.begin() + i);
-						enemies.erase(enemies.begin() + k);
-						break;
+						if (bullets[i].getGlobalBounds().intersects(enemies[k].getGlobalBounds()))
+						{
+							bullets.erase(bullets.begin() + i);
+							enemies.erase(enemies.begin() + k);
+							break;
+						}
 					}
 				}
 			}
+
+			//Draw
+			window.clear();
+
+			window.draw(player);
+
+			for (size_t i = 0; i < enemies.size(); i++)
+			{
+				window.draw(enemies[i]);
+			}
+
+			for (size_t i = 0; i < bullets.size(); i++)
+			{
+				window.draw(bullets[i]);
+			}
+
+			window.display();
 		}
 
-		//Draw
-		window.clear();
-
-		window.draw(player);
-
-		for (size_t i = 0; i < enemies.size(); i++)
-		{
-			window.draw(enemies[i]);
-		}
-
-		for (size_t i = 0; i < bullets.size(); i++)
-		{
-			window.draw(bullets[i]);
-		}
-
-		window.display();
+		return 0;
 	}
-
-	return 0;
-}
