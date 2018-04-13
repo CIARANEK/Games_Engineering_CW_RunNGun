@@ -1,10 +1,11 @@
-#include "stdafx.h"
 #include "SplashScreen.h"
+#include <SFML\Graphics.hpp>
+#include<SFML\Window.hpp>
 
 void SplashScreen::Show(sf::RenderWindow & renderWindow)
 {
-	sf::Image image;
-	if (image.LoadFromFile("images/SplashScreen.png") != true)
+	sf::Texture image;
+	if (image.loadFromFile("images/SplashScreen.png") != true)
 	{
 		return;
 	}
@@ -12,16 +13,16 @@ void SplashScreen::Show(sf::RenderWindow & renderWindow)
 	sf::Sprite sprite(image);
 
 	renderWindow.draw(sprite);
-	renderWindow.Display();
+	renderWindow.display();
 
 	sf::Event event;
 	while (true)
 	{
 		while (renderWindow.pollEvent(event))
 		{
-			if (event.Type == sf::Event::EventType::KeyPressed
-				|| event.Type == sf::Event::EventType::MouseButtonPressed
-				|| event.Type == sf::Event::EventType::Closed)
+			if (event.type == sf::Event::EventType::KeyPressed
+				|| event.type == sf::Event::EventType::MouseButtonPressed
+				|| event.type == sf::Event::EventType::Closed)
 			{
 				return;
 			}

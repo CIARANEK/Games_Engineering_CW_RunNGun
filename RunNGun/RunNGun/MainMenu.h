@@ -6,8 +6,8 @@
 class MainMenu
 {
 public:
-	enum class  MenuSelect {Nothing, Exit, Play};
-	
+	enum MenuSelect { Nothing, Exit, Play };
+
 	struct MenuItem
 	{
 	public:

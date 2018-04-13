@@ -11,12 +11,11 @@ private:
 	static bool IsExiting();
 	static void GameLoop();
 
-	enum GameState
-	{
-		Unitialized, ShowSplash, Paused, ShowingMenu, Playing, Exiting
-	};
+	static void ShowSplashScreen();
+	static void ShowMenu();
+
+	enum GameState { Unitialized, ShowingSplash, Paused, ShowingMenu, Playing, Exiting };
 
 	static GameState gameState;
 	static sf::RenderWindow mainWindow;
 };
-
