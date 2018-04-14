@@ -1,11 +1,10 @@
 #include "SplashScreen.h"
-#include <SFML\Graphics.hpp>
-#include<SFML\Window.hpp>
+#include <SFML/sfml.h>
 
 void SplashScreen::Show(sf::RenderWindow & renderWindow)
 {
 	sf::Texture image;
-	if (image.loadFromFile("images/SplashScreen.png") != true)
+	if (image.loadFromFile("SplashScreen.png") != true)
 	{
 		return;
 	}

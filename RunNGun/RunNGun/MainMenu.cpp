@@ -1,10 +1,11 @@
 #include "MainMenu.h"
+#include <SFML/sfml.h>
 
 MainMenu::MenuSelect MainMenu::Show(sf::RenderWindow& window)
 {
 	//Load Main menu image
 	sf::Texture image;
-	image.loadFromFile("images/Mainmenu.png");
+	image.loadFromFile("MainMenu.png");
 	sf::Sprite sprite(image);
 
 	//Set clickable areas of main menu image

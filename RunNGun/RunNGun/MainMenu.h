@@ -1,6 +1,5 @@
 #pragma once
-#include "SFML/Window.hpp"
-#include "SFML/Graphics.hpp"
+#include <SFML/sfml.h>
 #include <list>
 
 class MainMenu

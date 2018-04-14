@@ -2,7 +2,7 @@
 //
 
 #include "Game.h"
-
+#include <SFML/sfml.h>
 #include<tchar.h>
 
 int main(int argc, TCHAR* argv[])

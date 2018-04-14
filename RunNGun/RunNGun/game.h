@@ -1,6 +1,6 @@
 #pragma once
-#include "SFML/Window.hpp"
-#include "SFML/Graphics.hpp"
+#include <SFML/sfml.h>
+
 
 class Game
 {
@@ -14,8 +14,8 @@ private:
 	static void ShowSplashScreen();
 	static void ShowMenu();
 
-	enum GameState { Unitialized, ShowingSplash, Paused, ShowingMenu, Playing, Exiting };
+	enum GameState { Uninitialized, ShowingSplash, Paused, ShowingMenu, Playing, Exiting };
 
-	static GameState gameState;
-	static sf::RenderWindow mainWindow;
+	static GameState _gameState;
+	static sf::RenderWindow _mainWindow;
 };
