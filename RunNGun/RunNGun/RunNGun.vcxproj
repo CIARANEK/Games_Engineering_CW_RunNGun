@@ -155,13 +155,19 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="GameObjects.cpp" />
     <ClCompile Include="MainMenu.cpp" />
+    <ClCompile Include="ObjManagercpp.cpp" />
+    <ClCompile Include="Player.cpp" />
     <ClCompile Include="RunNGun.cpp" />
     <ClCompile Include="SplashScreen.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h" />
+    <ClInclude Include="GameObjects.h" />
     <ClInclude Include="MainMenu.h" />
+    <ClInclude Include="ObjManager.h" />
+    <ClInclude Include="Player.h" />
     <ClInclude Include="SplashScreen.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

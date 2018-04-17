@@ -8,7 +8,15 @@ void Game::Start(void)
 	if (_gameState != Uninitialized)
 		return;
 
-	_mainWindow.create(sf::VideoMode(1024, 768, 32), "Run N Gun");
+	_mainWindow.create(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT, 32), "Run N Gun");
+
+	//_mainWindoww.SetFramerateLimit(60);
+
+	player *player1 = new player();
+	player1->SetPosition((SCREEN_WIDTH / 2), 700);
+
+	gameObjectsM.add("player", player1);
+
 	_gameState = Game::ShowingSplash;
 
 	while (!IsExiting())
@@ -27,8 +35,21 @@ bool Game::IsExiting()
 		return false;
 }
 
+sf::RenderWindow& Game::getWindow()
+{
+	return _mainWindow;
+}
+
+const sf::Keyboard& Game::getInput()
+{
+	return _mainWindow.getInput();
+}
+
 void Game::GameLoop()
 {
+	sf::Event currentEvent;
+	_mainWindow.pollEvent(currentEvent);
+
 	switch (_gameState)
 	{
 	case Game::ShowingMenu:
@@ -43,10 +64,18 @@ void Game::GameLoop()
 	}
 	case Game::Playing:
 	{
-		sf::Event currentEvent;
-		while (_mainWindow.pollEvent(currentEvent))
-		{
-			_mainWindow.clear(sf::Color(255, 0, 0));
+			sf::Texture image;
+			if (image.loadFromFile("Background.png") != true)
+			{
+				return;
+			}
+
+			sf::Sprite background(image);
+			_mainWindow.draw(background);
+			
+			gameObjectsM.updateAll();
+			gameObjectsM.drawAll(_mainWindow);
+
 			_mainWindow.display();
 
 			if (currentEvent.type == sf::Event::Closed) _gameState =
@@ -55,7 +84,6 @@ void Game::GameLoop()
 			{
 				if (currentEvent.key.code == sf::Keyboard::Escape) ShowMenu();
 			}
-		}
 		break;
 	}
 	}
@@ -85,3 +113,4 @@ void Game::ShowMenu()
 
 Game::GameState Game::_gameState = Uninitialized;
 sf::RenderWindow Game::_mainWindow;
+ObjManager Game::gameObjectsM;
