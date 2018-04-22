@@ -40,9 +40,11 @@ sf::RenderWindow& Game::getWindow()
 	return _mainWindow;
 }
 
-const sf::Keyboard& Game::getInput()
+const sf::Event& Game::getInput()
 {
-	return _mainWindow.getInput();
+	sf::Event event;
+	_mainWindow.pollEvent(event);
+	return event;
 }
 
 void Game::GameLoop()
@@ -64,15 +66,8 @@ void Game::GameLoop()
 	}
 	case Game::Playing:
 	{
-			sf::Texture image;
-			if (image.loadFromFile("Background.png") != true)
-			{
-				return;
-			}
+		_mainWindow.clear(sf::Color(0, 0, 0));
 
-			sf::Sprite background(image);
-			_mainWindow.draw(background);
-			
 			gameObjectsM.updateAll();
 			gameObjectsM.drawAll(_mainWindow);
 

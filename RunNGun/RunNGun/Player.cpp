@@ -29,15 +29,15 @@ float player::getVelocity() const
 
 void player::update(float time)
 { 
-	if (Game::getInput().isKeyPressed(sf::Keyboard::Left))
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
 	{
 		velocity -= 3.0f;
 	}
-	if (Game::getInput().isKeyPressed(sf::Keyboard::Right))
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
 	{
 		velocity += 3.0f;
 	}
-	if (Game::getInput().isKeyPressed(sf::Keyboard::Down))
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
 	{
 		velocity = 0.0f;
 	}
