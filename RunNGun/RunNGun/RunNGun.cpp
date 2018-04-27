@@ -6,17 +6,13 @@
 #include"SFML\Graphics.hpp"
 #include"SFML\Window.hpp"
 #include"SFML\System.hpp"
+#include"SFML\Audio.hpp"
 #include<math.h>
 #include<cstdlib>
 #include<vector>
+#include<list>
 
 using namespace sf;
-
-////VECTOR MATH
-////LENGTH OF VECTOR
-//|V| = sqrt(pow(2, Vx) + pow(2, Vy));
-////NORMALIZE
-//U = V/|V| = (Vx, Vy) / sqrt(pow(2, Vx) + pow(2, Vy));
 
 class Bullet
 {
@@ -91,6 +87,43 @@ int main()
 	RenderWindow window(VideoMode(800, 600), "Run N Gun", Style::Default);
 	window.setFramerateLimit(60);
 
+	//Player shooting sound effect
+	sf::SoundBuffer sbuffer;
+	sbuffer.loadFromFile("shot.wav");
+	sf::Sound shooting(sbuffer);
+	shooting.setVolume(5);
+
+	//Zombie death sound effect
+	sf::SoundBuffer zbuffer;
+	zbuffer.loadFromFile("zombiedeath.wav");
+	sf::Sound Zdeath(zbuffer);
+	Zdeath.setVolume(5);
+
+	//Zombie spawn/generic sound effect
+	sf::SoundBuffer zgen;
+	zgen.loadFromFile("zombiespawn.wav");
+	sf::Sound Zspawn(zgen);
+	Zspawn.setVolume(5);
+
+	//Player hit sound effect
+	sf::SoundBuffer phit;
+	phit.loadFromFile("playerhit.wav");
+	sf::Sound PlayerHit(phit);
+	PlayerHit.setVolume(5);
+
+	//Player death sound effect
+	sf::SoundBuffer pdeath;
+	pdeath.loadFromFile("playerdeath.wav");
+	sf::Sound PlayDeath(pdeath);
+	PlayDeath.setVolume(5);
+
+	//Background music
+	sf::Music theme;
+	theme.openFromFile("backgroundaudio.wav");
+	theme.setLoop(true);
+	theme.setVolume(5);
+	theme.play();
+
 	//Init text
 	Font font;
 	font.loadFromFile("Dosis-Light.ttf");
@@ -137,6 +170,7 @@ int main()
 	eHpText.setCharacterSize(12);
 	eHpText.setFillColor(Color::White);
 
+	//Close game by pressing X on the top right of the window
 	while (window.isOpen())
 	{
 		Event event;
@@ -175,8 +209,9 @@ int main()
 			if (shootTimer < 15)
 				shootTimer++;
 
-			if (Mouse::isButtonPressed(Mouse::Left) && shootTimer >= 15) //Shooting
+			if (Mouse::isButtonPressed(Mouse::Left) && shootTimer >= 10) //Shooting
 			{
+				shooting.play();
 				player.bullets.push_back(Bullet(&bulletImage, player.shape.getPosition()));
 				shootTimer = 0; //reset timer
 			}
@@ -202,6 +237,7 @@ int main()
 						if (enemies[k].HP <= 1)
 						{
 							score += enemies[k].HPMax;
+							Zdeath.play();
 							enemies.erase(enemies.begin() + k);
 						}
 						else
@@ -220,6 +256,7 @@ int main()
 			//enemy spawn
 			if (enemySpawnTimer >= 25)
 			{
+				Zspawn.play();
 				enemies.push_back(Enemy(&enemyImage, window.getSize()));
 				enemySpawnTimer = 0; //reset timer
 			}
@@ -236,9 +273,12 @@ int main()
 
 				if (enemies[i].shape.getGlobalBounds().intersects(player.shape.getGlobalBounds()))
 				{
+					
 					enemies.erase(enemies.begin() + i);
+					PlayerHit.play();
 
 					player.HP--; // PLAYER TAKE DAMAGE
+					
 					break;
 				}
 			}
@@ -281,6 +321,7 @@ int main()
 
 		if (player.HP <= 0)
 			window.draw(gameOverText);
+		    PlayDeath.play();
 
 		window.display();
 	}
