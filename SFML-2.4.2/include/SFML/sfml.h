@@ -17,6 +17,9 @@
 #include <map>
 #include <iostream>
 #include <cassert>
+#include <math.h>
+#include <cstdlib>
+#include <vector>
 
 #if defined(_DEBUG) || defined(DEBUG)
 #if defined(SFML_STATIC)
