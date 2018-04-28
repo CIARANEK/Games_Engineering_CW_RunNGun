@@ -1,7 +1,6 @@
 // RunNGun.cpp : Defines the entry point for the console application.
 //
 
-
 #include<iostream>
 #include"SFML\Graphics.hpp"
 #include"SFML\Window.hpp"
@@ -16,12 +15,14 @@
 
 using namespace sf;
 
+//Splash Screen Class
 class SplashScreen
 {
 	public:
 		void Show(sf::RenderWindow& window);
 };
 
+//Main Menu class
 class MainMenu
 {
 	public:
@@ -42,6 +43,7 @@ class MainMenu
 		std::list<MenuItem> menuItems;
 	};
 
+//Game class
 class Game
 {
 	public:
@@ -62,6 +64,7 @@ class Game
 
 	};
 
+//Bullet class
 class Bullet
 {
 public:
@@ -79,6 +82,7 @@ public:
 	~Bullet() {}
 };
 
+//Player class
 class Player
 {
 public:
@@ -105,6 +109,7 @@ public:
 
 };
 
+//Enemy class
 class Enemy
 {
 public:
@@ -128,6 +133,7 @@ public:
 	~Enemy() {}
 };
 
+//Splash Screen image set & clickable
 void SplashScreen::Show(sf::RenderWindow & renderwindow)
 {
 
@@ -157,6 +163,7 @@ while(true)
 }
 }
 
+//Main Menu image set & clickable position
 MainMenu::MenuSelect MainMenu::Show(sf::RenderWindow& window)
 {
 	//Load Main menu image
@@ -191,6 +198,7 @@ MainMenu::MenuSelect MainMenu::Show(sf::RenderWindow& window)
 	return GetMenuResponse(window);
 }
 
+//Handle click on main menu
 MainMenu::MenuSelect MainMenu::HandleClick(int x, int y)
 {
 	std::list<MenuItem>::iterator it;
@@ -209,6 +217,7 @@ MainMenu::MenuSelect MainMenu::HandleClick(int x, int y)
 	return Nothing;
 }
 
+//Respond to main menu click
 MainMenu::MenuSelect MainMenu::GetMenuResponse(sf::RenderWindow& window)
 {
 	sf::Event menuEvent;
@@ -229,12 +238,11 @@ MainMenu::MenuSelect MainMenu::GetMenuResponse(sf::RenderWindow& window)
 	}
 }
 
+//Start game loop
 void Game::Start(void)
 {
 	if (_gameState != Uninitialized)
 		return;
-
-	//srand(time(NULL));
 
 	window.create(VideoMode(1024, 768), "Run N Gun", Style::Default);
 
@@ -250,6 +258,7 @@ void Game::Start(void)
 	window.close();
 }
 
+//Exiting game state
 bool Game::IsExiting()
 {
 	if (_gameState == Game::Exiting)
@@ -258,11 +267,7 @@ bool Game::IsExiting()
 		return false;
 }
 
-sf::RenderWindow& Game::getWindow()
-{
-	return window;
-}
-
+//Main game loop
 void Game::GameLoop()
 {
 	sf::Event currentEvent;
@@ -324,27 +329,33 @@ void Game::GameLoop()
 		theme.setVolume(5);
 		theme.play();
 
-		//Init text
+
+		//Game font
 		Font font;
 		font.loadFromFile("Dosis-Light.ttf");
 
-		//Init textures
+		//Game textures
+		//Player image
 		Texture playerImage;
 		playerImage.loadFromFile("player.png");
 
+		//Enemy image
 		Texture enemyImage;
 		enemyImage.loadFromFile("enemy.png");
 
+		//Bullet image
 		Texture bulletImage;
 		bulletImage.loadFromFile("bullet.png");
 
-		//UI init
+		//Overlay text
+		//Score text
 		Text scoreText;
 		scoreText.setFont(font);
 		scoreText.setCharacterSize(20);
 		scoreText.setFillColor(Color::White);
 		scoreText.setPosition(10.f, 10.f);
 
+		//Game over text
 		Text gameOverText;
 		gameOverText.setFont(font);
 		gameOverText.setCharacterSize(30);
@@ -352,7 +363,7 @@ void Game::GameLoop()
 		gameOverText.setPosition(100.f, window.getSize().y / 2);
 		gameOverText.setString("GAME OVER!");
 
-		//Player init
+		//Player set up
 		int score = 0;
 		Player player(&playerImage);
 		int shootTimer = 20;
@@ -361,176 +372,191 @@ void Game::GameLoop()
 		hpText.setCharacterSize(12);
 		hpText.setFillColor(Color::White);
 
-		//Enemy init
+		//Enemy set up
 		int enemySpawnTimer = 0;
 		std::vector<Enemy> enemies;
 
+		//Enemy health points
 		Text eHpText;
 		eHpText.setFont(font);
 		eHpText.setCharacterSize(12);
 		eHpText.setFillColor(Color::White);
 
-		//Close game by pressing X on the top right of the window
+		//Close game pressing Escape or the X. Both take you back to the main menu
 		while (window.isOpen())
 		{
-			Event event;
+			sf::Event event;
 			while (window.pollEvent(event))
 			{
-				if (event.type == Event::Closed)
+				if (event.type == Event::Closed || Keyboard::isKeyPressed(Keyboard::Escape))
 					window.close();
+				_gameState = Game::Exiting;
+				_gameState = Game::ShowingMenu;
 			}
 
-				if (player.HP > 0)
+			if (player.HP > 0)
+			{
+				//Player input
+				//Movement
+				if (Keyboard::isKeyPressed(Keyboard::W))
+					player.shape.move(0.f, -10.f);
+				if (Keyboard::isKeyPressed(Keyboard::A))
+					player.shape.move(-10.f, 0.f);
+				if (Keyboard::isKeyPressed(Keyboard::S))
+					player.shape.move(0.f, 10.f);
+				if (Keyboard::isKeyPressed(Keyboard::D))
+					player.shape.move(10.f, 0.f);
+
+				//Player HP text
+				hpText.setPosition(player.shape.getPosition().x, player.shape.getPosition().y - hpText.getGlobalBounds().height);
+				hpText.setString(std::to_string(player.HP) + "/" + std::to_string(player.HPMax));
+
+				//Collision with bordersof the window
+				//Left side of the window
+				if (player.shape.getPosition().x <= 0)
+					player.shape.setPosition(0.f, player.shape.getPosition().y);
+				//Right side of window
+				if (player.shape.getPosition().x >= window.getSize().x - player.shape.getGlobalBounds().width)
+					player.shape.setPosition(window.getSize().x - player.shape.getGlobalBounds().width, player.shape.getPosition().y);
+				//Top of the window
+				if (player.shape.getPosition().y <= 0)
+					player.shape.setPosition(player.shape.getPosition().x, 0.f);
+				//Bottom of the window
+				if (player.shape.getPosition().y >= window.getSize().y - player.shape.getGlobalBounds().height)
+					player.shape.setPosition(player.shape.getPosition().x, window.getSize().y - player.shape.getGlobalBounds().height);
+
+				//Update Controls
+				if (shootTimer < 15)
+					shootTimer++;
+
+				//Shooting input and timer + sound effect
+				if (Mouse::isButtonPressed(Mouse::Left) && shootTimer >= 10)
 				{
-					//Player
-					if (Keyboard::isKeyPressed(Keyboard::W))
-						player.shape.move(0.f, -10.f);
-					if (Keyboard::isKeyPressed(Keyboard::A))
-						player.shape.move(-10.f, 0.f);
-					if (Keyboard::isKeyPressed(Keyboard::S))
-						player.shape.move(0.f, 10.f);
-					if (Keyboard::isKeyPressed(Keyboard::D))
-						player.shape.move(10.f, 0.f);
-
-					hpText.setPosition(player.shape.getPosition().x, player.shape.getPosition().y - hpText.getGlobalBounds().height);
-					hpText.setString(std::to_string(player.HP) + "/" + std::to_string(player.HPMax));
-
-					//Collision with window
-					if (player.shape.getPosition().x <= 0) //Left
-						player.shape.setPosition(0.f, player.shape.getPosition().y);
-					if (player.shape.getPosition().x >= window.getSize().x - player.shape.getGlobalBounds().width) //Right
-						player.shape.setPosition(window.getSize().x - player.shape.getGlobalBounds().width, player.shape.getPosition().y);
-					if (player.shape.getPosition().y <= 0) //Top
-						player.shape.setPosition(player.shape.getPosition().x, 0.f);
-					if (player.shape.getPosition().y >= window.getSize().y - player.shape.getGlobalBounds().height) //Bottom
-						player.shape.setPosition(player.shape.getPosition().x, window.getSize().y - player.shape.getGlobalBounds().height);
-
-					//Update Controls
-					if (shootTimer < 15)
-						shootTimer++;
-
-					if (Mouse::isButtonPressed(Mouse::Left) && shootTimer >= 10) //Shooting
-					{
-						shooting.play();
-						player.bullets.push_back(Bullet(&bulletImage, player.shape.getPosition()));
-						shootTimer = 0; //reset timer
-					}
-
-					//Bullets
-					for (size_t i = 0; i < player.bullets.size(); i++)
-					{
-						//Move
-						player.bullets[i].shape.move(20.f, 0.f);
-
-						//Out of window bounds
-						if (player.bullets[i].shape.getPosition().x > window.getSize().x)
-						{
-							player.bullets.erase(player.bullets.begin() + i);
-							break;
-						}
-
-						//Enemy collision
-						for (size_t k = 0; k < enemies.size(); k++)
-						{
-							if (player.bullets[i].shape.getGlobalBounds().intersects(enemies[k].shape.getGlobalBounds()))
-							{
-								if (enemies[k].HP <= 1)
-								{
-									score += enemies[k].HPMax;
-									Zdeath.play();
-									enemies.erase(enemies.begin() + k);
-								}
-								else
-									enemies[k].HP--; //ENEMY TAKE DAMAGE
-
-								player.bullets.erase(player.bullets.begin() + i);
-								break;
-							}
-						}
-					}
-
-					//Enemy
-					if (enemySpawnTimer < 25)
-						enemySpawnTimer++;
-
-					//enemy spawn
-					if (enemySpawnTimer >= 25)
-					{
-						Zspawn.play();
-						enemies.push_back(Enemy(&enemyImage, window.getSize()));
-						enemySpawnTimer = 0; //reset timer
-					}
-
-					for (size_t i = 0; i < enemies.size(); i++)
-					{
-						enemies[i].shape.move(-6.f, 0.f);
-
-						if (enemies[i].shape.getPosition().x <= 0 - enemies[i].shape.getGlobalBounds().width)
-						{
-							enemies.erase(enemies.begin() + i);
-							break;
-						}
-
-						if (enemies[i].shape.getGlobalBounds().intersects(player.shape.getGlobalBounds()))
-						{
-
-							enemies.erase(enemies.begin() + i);
-							PlayerHit.play();
-
-							player.HP--; // PLAYER TAKE DAMAGE
-
-							break;
-						}
-					}
-
-					//UI Update
-					scoreText.setString("Score: " + std::to_string(score));
+					shooting.play();
+					player.bullets.push_back(Bullet(&bulletImage, player.shape.getPosition()));
+					shootTimer = 0; //reset timer
 				}
-
-
-				window.clear();
-
-				//Background
-				sf::Texture backImage;
-				backImage.loadFromFile("background.png");
-
-				sf::Sprite background(backImage);
-				window.draw(background);
-
-				//player
-				window.draw(player.shape);
 
 				//Bullets
 				for (size_t i = 0; i < player.bullets.size(); i++)
 				{
-					window.draw(player.bullets[i].shape);
+					//Moving the bullet
+					player.bullets[i].shape.move(20.f, 0.f);
+
+					//Erase bullets once it hits border
+					if (player.bullets[i].shape.getPosition().x > window.getSize().x)
+					{
+						player.bullets.erase(player.bullets.begin() + i);
+						break;
+					}
+
+					//Enemy collision
+					for (size_t k = 0; k < enemies.size(); k++)
+					{
+						if (player.bullets[i].shape.getGlobalBounds().intersects(enemies[k].shape.getGlobalBounds()))
+						{
+							if (enemies[k].HP <= 1)
+							{
+								score += enemies[k].HPMax;
+								Zdeath.play();
+								//Remove enemy after death
+								enemies.erase(enemies.begin() + k);
+							}
+							else
+								//Enemy health deplete after hit
+								enemies[k].HP--;
+
+							player.bullets.erase(player.bullets.begin() + i);
+							break;
+						}
+					}
 				}
 
-				//enemy
+				//Enemy
+				if (enemySpawnTimer < 25)
+					enemySpawnTimer++;
+
+				//Enemy spawn timer
+				if (enemySpawnTimer >= 25)
+				{
+					//Spawn sounde effect
+					Zspawn.play();
+					enemies.push_back(Enemy(&enemyImage, window.getSize()));
+					enemySpawnTimer = 0; //reset timer
+				}
+
 				for (size_t i = 0; i < enemies.size(); i++)
 				{
-					eHpText.setString(std::to_string(enemies[i].HP) + "/" + std::to_string(enemies[i].HPMax));
-					eHpText.setPosition(enemies[i].shape.getPosition().x, enemies[i].shape.getPosition().y - eHpText.getGlobalBounds().height);
-					window.draw(eHpText);
-					window.draw(enemies[i].shape);
+					enemies[i].shape.move(-6.f, 0.f);
+
+					if (enemies[i].shape.getPosition().x <= 0 - enemies[i].shape.getGlobalBounds().width)
+					{
+						enemies.erase(enemies.begin() + i);
+						break;
+					}
+
+					//Erase if spwaned out of bounds
+					if (enemies[i].shape.getGlobalBounds().intersects(player.shape.getGlobalBounds()))
+					{
+
+						enemies.erase(enemies.begin() + i);
+						PlayerHit.play();
+
+						//Player takes damage
+						player.HP--;
+
+						break;
+					}
 				}
 
-				//UI
-				window.draw(scoreText);
-				window.draw(hpText);
-
-				if (player.HP <= 0)
-					window.draw(gameOverText);
-				PlayDeath.play();
-
-				window.display();
+				//Update score
+				scoreText.setString("Score: " + std::to_string(score));
 			}
 
-			return;
-		}
-	}
-	}
+			window.clear();
 
+			//Background image
+			sf::Texture backImage;
+			backImage.loadFromFile("background.png");
+
+			sf::Sprite background(backImage);
+			window.draw(background);
+
+			//Draw Player
+			window.draw(player.shape);
+
+			//Draw Bullets
+			for (size_t i = 0; i < player.bullets.size(); i++)
+			{
+				window.draw(player.bullets[i].shape);
+			}
+
+			//Draw Enemy
+			for (size_t i = 0; i < enemies.size(); i++)
+			{
+				eHpText.setString(std::to_string(enemies[i].HP) + "/" + std::to_string(enemies[i].HPMax));
+				eHpText.setPosition(enemies[i].shape.getPosition().x, enemies[i].shape.getPosition().y - eHpText.getGlobalBounds().height);
+				window.draw(eHpText);
+				window.draw(enemies[i].shape);
+			}
+
+			//Draw Score and HP
+			window.draw(scoreText);
+			window.draw(hpText);
+
+			if (player.HP <= 0)
+				window.draw(gameOverText);
+			PlayDeath.play();
+
+			window.display();
+		}
+
+		return;
+	}
+	}
+}
+
+//Splash Screen game state
 void Game::ShowSplashScreen()
 {
 	SplashScreen splashScreen;
@@ -538,6 +564,7 @@ void Game::ShowSplashScreen()
 	_gameState = Game::ShowingMenu;
 }
 
+//Show menu game state
 void Game::ShowMenu()
 {
 	MainMenu mainMenu;
@@ -558,251 +585,6 @@ int main(int argc, TCHAR* argv[])
 	Game::Start();
 	return 0;
 }
-	//srand(time(NULL));
 
-	//RenderWindow window(VideoMode(800, 600), "Run N Gun", Style::Default);
-	//window.setFramerateLimit(60);
-
-	//Player shooting sound effect
-	//sf::SoundBuffer sbuffer;
-	//sbuffer.loadFromFile("shot.wav");
-	//sf::Sound shooting(sbuffer);
-	//shooting.setVolume(5);
-
-	//Zombie death sound effect
-	//sf::SoundBuffer zbuffer;
-	//zbuffer.loadFromFile("zombiedeath.wav");
-	//sf::Sound Zdeath(zbuffer);
-	//Zdeath.setVolume(5);
-
-	//Zombie spawn/generic sound effect
-	//sf::SoundBuffer zgen;
-	//zgen.loadFromFile("zombiespawn.wav");
-	//sf::Sound Zspawn(zgen);
-	//Zspawn.setVolume(5);
-
-	//Player hit sound effect
-	//sf::SoundBuffer phit;
-	//phit.loadFromFile("playerhit.wav");
-	//sf::Sound PlayerHit(phit);
-	//PlayerHit.setVolume(5);
-
-	//Player death sound effect
-	//sf::SoundBuffer pdeath;
-	//pdeath.loadFromFile("playerdeath.wav");
-	//sf::Sound PlayDeath(pdeath);
-	//PlayDeath.setVolume(5);
-
-	//Background music
-	//sf::Music theme;
-	//theme.openFromFile("backgroundaudio.wav");
-	//theme.setLoop(true);
-	//theme.setVolume(5);
-	//theme.play();
-
-	//Init text
-	//Font font;
-	//font.loadFromFile("Dosis-Light.ttf");
-
-	//Init textures
-	//Texture playerImage;
-	//playerImage.loadFromFile("player.png");
-
-	//Texture enemyImage;
-	//enemyImage.loadFromFile("enemy.png");
-
-	//Texture bulletImage;
-	//bulletImage.loadFromFile("bullet.png");
-
-	//UI init
-	//Text scoreText;
-	//scoreText.setFont(font);
-	//scoreText.setCharacterSize(20);
-	//scoreText.setFillColor(Color::White);
-	//scoreText.setPosition(10.f, 10.f);
-
-	//Text gameOverText;
-	//gameOverText.setFont(font);
-	//gameOverText.setCharacterSize(30);
-	//gameOverText.setFillColor(Color::Red);
-	//gameOverText.setPosition(100.f, window.getSize().y / 2);
-	//gameOverText.setString("GAME OVER!");
-
-	//Player init
-	//int score = 0;
-	//Player player(&playerImage);
-	//int shootTimer = 20;
-	//Text hpText;
-	//hpText.setFont(font);
-	//hpText.setCharacterSize(12);
-	//hpText.setFillColor(Color::White);
-
-	//Enemy init
-	//int enemySpawnTimer = 0;
-	//std::vector<Enemy> enemies;
-
-	//Text eHpText;
-	//eHpText.setFont(font);
-	//eHpText.setCharacterSize(12);
-	//eHpText.setFillColor(Color::White);
-
-	//Close game by pressing X on the top right of the window
-	//while (window.isOpen())
-	//{
-	//Event event;
-	//while (window.pollEvent(event))
-	//{
-	//	if (event.type == Event::Closed)
-	//		window.close();
-	//}
-	
-	//	if (player.HP > 0)
-	//{
-	//	//Player
-	//	if (Keyboard::isKeyPressed(Keyboard::W))
-	//		player.shape.move(0.f, -10.f);
-	//	if (Keyboard::isKeyPressed(Keyboard::A))
-	//		player.shape.move(-10.f, 0.f);
-	//	if (Keyboard::isKeyPressed(Keyboard::S))
-	//		player.shape.move(0.f, 10.f);
-	//	if (Keyboard::isKeyPressed(Keyboard::D))
-	//		player.shape.move(10.f, 0.f);
-
-	//	hpText.setPosition(player.shape.getPosition().x, player.shape.getPosition().y - hpText.getGlobalBounds().height);
-	//	hpText.setString(std::to_string(player.HP) + "/" + std::to_string(player.HPMax));
-
-			//Collision with window
-			//	if (player.shape.getPosition().x <= 0) //Left
-			//player.shape.setPosition(0.f, player.shape.getPosition().y);
-			//if (player.shape.getPosition().x >= window.getSize().x - player.shape.getGlobalBounds().width) //Right
-			//player.shape.setPosition(window.getSize().x - player.shape.getGlobalBounds().width, player.shape.getPosition().y);
-			//if (player.shape.getPosition().y <= 0) //Top
-			//player.shape.setPosition(player.shape.getPosition().x, 0.f);
-			//if (player.shape.getPosition().y >= window.getSize().y - player.shape.getGlobalBounds().height) //Bottom
-			//player.shape.setPosition(player.shape.getPosition().x, window.getSize().y - player.shape.getGlobalBounds().height);
-
-			//Update Controls
-			//if (shootTimer < 15)
-			//shootTimer++;
-
-				//if (Mouse::isButtonPressed(Mouse::Left) && shootTimer >= 10) //Shooting
-				//{
-				//shooting.play();
-				//player.bullets.push_back(Bullet(&bulletImage, player.shape.getPosition()));
-				//shootTimer = 0; //reset timer
-				//}
-
-			//Bullets
-			//for (size_t i = 0; i < player.bullets.size(); i++)
-			//{
-				//Move
-				//player.bullets[i].shape.move(20.f, 0.f);
-
-				//Out of window bounds
-				//if (player.bullets[i].shape.getPosition().x > window.getSize().x)
-				//{
-				//player.bullets.erase(player.bullets.begin() + i);
-				//break;
-				//}
-
-				//Enemy collision
-				//for (size_t k = 0; k < enemies.size(); k++)
-				//{
-				//if (player.bullets[i].shape.getGlobalBounds().intersects(enemies[k].shape.getGlobalBounds()))
-				//{
-				//	if (enemies[k].HP <= 1)
-				//	{
-				//		score += enemies[k].HPMax;
-				//		Zdeath.play();
-				//		enemies.erase(enemies.begin() + k);
-				//	}
-				//	else
-				//		enemies[k].HP--; //ENEMY TAKE DAMAGE
-				
-				//		player.bullets.erase(player.bullets.begin() + i);
-				//	break;
-				//}
-				//}
-				//}
-
-			//Enemy
-			//if (enemySpawnTimer < 25)
-			//enemySpawnTimer++;
-
-			//enemy spawn
-			//if (enemySpawnTimer >= 25)
-			//{
-			//Zspawn.play();
-			//enemies.push_back(Enemy(&enemyImage, window.getSize()));
-			//enemySpawnTimer = 0; //reset timer
-			//}
-
-			//for (size_t i = 0; i < enemies.size(); i++)
-			//{
-			//enemies[i].shape.move(-6.f, 0.f);
-
-			//if (enemies[i].shape.getPosition().x <= 0 - enemies[i].shape.getGlobalBounds().width)
-			//{
-			//	enemies.erase(enemies.begin() + i);
-			//	break;
-			//}
-
-			//if (enemies[i].shape.getGlobalBounds().intersects(player.shape.getGlobalBounds()))
-			//{
-					
-			//	enemies.erase(enemies.begin() + i);
-			//	PlayerHit.play();
-
-			//	player.HP--; // PLAYER TAKE DAMAGE
-					
-			//	break;
-			//}
-			//}
-
-			//UI Update
-			//scoreText.setString("Score: " + std::to_string(score));
-			//}
-
-		//Draw ===================================================================== DRAW
-		//window.clear();
-
-		//Background
-		//sf::Texture backImage;
-		//backImage.loadFromFile("background.png");
-
-		//sf::Sprite background(backImage);
-		//window.draw(background);
-			
-		//player
-		//window.draw(player.shape);
-
-		//Bullets
-		//for (size_t i = 0; i < player.bullets.size(); i++)
-		//{
-		//window.draw(player.bullets[i].shape);
-		//}
-
-		//enemy
-		//for (size_t i = 0; i < enemies.size(); i++)
-		//{
-		//eHpText.setString(std::to_string(enemies[i].HP) + "/" + std::to_string(enemies[i].HPMax));
-		//eHpText.setPosition(enemies[i].shape.getPosition().x, enemies[i].shape.getPosition().y - eHpText.getGlobalBounds().height);
-		//window.draw(eHpText);
-		//window.draw(enemies[i].shape);
-		//}
-
-		//UI
-		//window.draw(scoreText);
-		//window.draw(hpText);
-
-		//if (player.HP <= 0)
-		//window.draw(gameOverText);
-		//  PlayDeath.play();
-
-		//window.display();
-		//}
-
-		//return 0;
-		//}
 Game::GameState Game::_gameState = Uninitialized;
 sf::RenderWindow Game::window;
