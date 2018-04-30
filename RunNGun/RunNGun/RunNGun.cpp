@@ -435,7 +435,7 @@ void Game::GameLoop()
 					shootTimer++;
 
 				//Shooting input and timer + sound effect
-				if (Mouse::isButtonPressed(Mouse::Left) && shootTimer >= 20)
+				if (Mouse::isButtonPressed(Mouse::Left) && shootTimer >= 10)
 				{
 					shooting.play();
 					player.bullets.push_back(Bullet(&bulletImage, player.shape.getPosition()));
