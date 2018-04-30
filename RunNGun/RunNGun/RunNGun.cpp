@@ -292,6 +292,7 @@ void Game::GameLoop()
 		RenderWindow window(VideoMode(800, 600), "Run N Gun", Style::Default);
 		window.setFramerateLimit(60);
 
+		////Sounds////
 		//Player shooting sound effect
 		sf::SoundBuffer sbuffer;
 		sbuffer.loadFromFile("shot.wav");
@@ -328,8 +329,9 @@ void Game::GameLoop()
 		theme.setLoop(true);
 		theme.setVolume(5);
 		theme.play();
+		//// ////
 
-
+		////Fonts & Textures////
 		//Game font
 		Font font;
 		font.loadFromFile("Dosis-Light.ttf");
@@ -362,7 +364,9 @@ void Game::GameLoop()
 		gameOverText.setFillColor(Color::Red);
 		gameOverText.setPosition(100.f, window.getSize().y / 2);
 		gameOverText.setString("GAME OVER!");
+		//// ////
 
+		////Player annd enemy set up////
 		//Player set up
 		int score = 0;
 		Player player(&playerImage);
@@ -381,6 +385,7 @@ void Game::GameLoop()
 		eHpText.setFont(font);
 		eHpText.setCharacterSize(12);
 		eHpText.setFillColor(Color::White);
+		//// ////
 
 		//Close game pressing Escape or the X. Both take you back to the main menu
 		while (window.isOpen())
@@ -430,7 +435,7 @@ void Game::GameLoop()
 					shootTimer++;
 
 				//Shooting input and timer + sound effect
-				if (Mouse::isButtonPressed(Mouse::Left) && shootTimer >= 10)
+				if (Mouse::isButtonPressed(Mouse::Left) && shootTimer >= 20)
 				{
 					shooting.play();
 					player.bullets.push_back(Bullet(&bulletImage, player.shape.getPosition()));
